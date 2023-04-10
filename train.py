@@ -95,8 +95,7 @@ testvalset = torchvision.datasets.CIFAR10(root='./data', train=False,
 
 #Split test-val set
 ln = len(testvalset)
-testset = testvalset[:ln//2]
-valset = testvalset[ln//2:]
+valset,testset = torch.utils.data.random_split(testvalset,ln//2)
 
 #Dataloaders
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size,
