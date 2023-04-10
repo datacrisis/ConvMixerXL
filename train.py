@@ -26,7 +26,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--name', type=str, default="ConvMixer")
 
 parser.add_argument('--model', default='CM', choices=['CM','CM-XL'])
-parser.add_argument('--skip_period', default=3, help='Denominator in extra skip connection periodicity computation; only used in ConvMixer-XL')
+parser.add_argument('--skip_period', default=3, 
+                    help='Denominator in extra skip connection periodicity computation; only used in ConvMixer-XL',
+                    type=int)
 parser.add_argument('--activation', default='GELU', choices=['GELU','ReLU','SiLU'])
 parser.add_argument('--batch-size', default=64, type=int)
 parser.add_argument('--scale', default=0.75, type=float)
