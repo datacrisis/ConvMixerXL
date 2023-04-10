@@ -34,6 +34,7 @@ parser.add_argument('--reprob', default=0.2, type=float)
 parser.add_argument('--ra-m', default=12, type=int)
 parser.add_argument('--ra-n', default=2, type=int)
 parser.add_argument('--jitter', default=0.2, type=float)
+parser.add_argument('--no_aug',action='store_true',help="Enable flag to remove augmentations")
 
 parser.add_argument('--hdim', default=256, type=int)
 parser.add_argument('--depth', default=8, type=int)
@@ -66,15 +67,20 @@ cifar10_mean = (0.4914, 0.4822, 0.4465)
 cifar10_std = (0.2471, 0.2435, 0.2616)
 
 #Transforms
-train_transform = transforms.Compose([
-    transforms.RandomResizedCrop(32, scale=(args.scale, 1.0), ratio=(1.0, 1.0)),
-    transforms.RandomHorizontalFlip(p=0.5),
-    transforms.RandAugment(num_ops=args.ra_n, magnitude=args.ra_m),
-    transforms.ColorJitter(args.jitter, args.jitter, args.jitter),
+if not args.no_aug:
+    train_transform = transforms.Compose([
+        transforms.RandomResizedCrop(32, scale=(args.scale, 1.0), ratio=(1.0, 1.0)),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.RandAugment(num_ops=args.ra_n, magnitude=args.ra_m),
+        transforms.ColorJitter(args.jitter, args.jitter, args.jitter),
+        transforms.ToTensor(),
+        transforms.Normalize(cifar10_mean, cifar10_std),
+        transforms.RandomErasing(p=args.reprob)
+    ])
+else:
+    train_transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize(cifar10_mean, cifar10_std),
-    transforms.RandomErasing(p=args.reprob)
-])
+    transforms.Normalize(cifar10_mean, cifar10_std)])
 
 test_transform = transforms.Compose([
     transforms.ToTensor(),
