@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 
+from utils import *
 from networks import ConvMixer, ConvMixerXL
 
 ###========================================================================
@@ -37,6 +38,11 @@ parser.add_argument('--ra-m', default=12, type=int)
 parser.add_argument('--ra-n', default=2, type=int)
 parser.add_argument('--jitter', default=0.2, type=float)
 parser.add_argument('--no_aug',action='store_true',help="Enable flag to remove augmentations")
+
+parser.add_argument('--cutmix',action='store_true',help="Enable CutMix regularizer")
+parser.add_argument('--cutmix_alpha', type=float, default=1.0)
+parser.add_argument('--mixup',action='store_true',help="Enable MixUp regularizer")
+parser.add_argument('--mixup_alpha', type=float, default=1.0)
 
 parser.add_argument('--hdim', default=256, type=int)
 parser.add_argument('--depth', default=8, type=int)
@@ -95,17 +101,29 @@ trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
 testvalset = torchvision.datasets.CIFAR10(root='./data', train=False,
                                           download=True, transform=test_transform)
 
+
+if args.use_cutmix:
+    collator = CustomCollator(args.cutmix_alpha, args.mixup_alpha, 10)
+else:
+    collator = torch.utils.data.dataloader.default_collate
 #Split test-val set
 ln = len(testvalset)
 valset,testset = torch.utils.data.random_split(testvalset,[ln//2,ln//2])
 
 #Dataloaders
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size,
-                                          shuffle=True, num_workers=args.workers)
-valloader = torch.utils.data.DataLoader(valset, batch_size=args.batch_size,
-                                         shuffle=False, num_workers=args.workers)
-testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size,
-                                         shuffle=False, num_workers=args.workers)
+trainloader = torch.utils.data.DataLoader(trainset, 
+                                        batch_size=args.batch_size,
+                                        shuffle=True,
+                                        num_workers=args.workers,
+                                        collate_fn=collator)
+valloader = torch.utils.data.DataLoader(valset,
+                                        batch_size=args.batch_size,
+                                        shuffle=False,
+                                        num_workers=args.workers)
+testloader = torch.utils.data.DataLoader(testset,
+                                        batch_size=args.batch_size,
+                                        shuffle=False,
+                                        num_workers=args.workers)
 
 
 ###========================================================================
@@ -121,7 +139,11 @@ lr_schedule = lambda t: np.interp([t], [0, args.epochs*2//5, args.epochs*4//5, a
                                   [0, args.lr_max, args.lr_max/20.0, 0])[0]
 
 opt = optim.AdamW(model.parameters(), lr=args.lr_max, weight_decay=args.wd) #optimizer
-criterion = nn.CrossEntropyLoss() #loss function
+if args.use_cutmix:
+    train_criterion = CutMixCriterion(reduction='mean')
+else:
+    train_criterion = nn.CrossEntropyLoss(reduction='mean')
+test_criterion = nn.CrossEntropyLoss() #loss function
 scaler = torch.cuda.amp.GradScaler() #grad scaler
 
 
@@ -156,7 +178,7 @@ for epoch in range(args.epochs):
         #FP and compute loss with amp
         with torch.cuda.amp.autocast():
             output = model(X)
-            loss = criterion(output, y)
+            loss = train_criterion(output, y)
 
         #Scale gradient and clip norm
         scaler.scale(loss).backward()
@@ -182,7 +204,7 @@ for epoch in range(args.epochs):
             #FP and compute result and log
             with torch.cuda.amp.autocast():
                 output = model(X)
-            loss = criterion(output,y)
+            loss = test_criterion(output,y)
 
             val_loss += loss.item() * y.size(0)
             val_acc += (output.max(1)[1] == y).sum().item()
@@ -215,7 +237,7 @@ with torch.no_grad(): #no grad needed
         #FP and compute result and log
         with torch.cuda.amp.autocast():
             output = model(X)
-            loss = criterion(output,y)
+            loss = test_criterion(output,y)
 
         test_loss += loss.item() * y.size(0)
         test_acc += (output.max(1)[1] == y).sum().item()

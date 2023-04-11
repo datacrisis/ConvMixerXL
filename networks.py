@@ -9,7 +9,7 @@ class Residual(nn.Module):
         return self.fn(x) + x
 
 
-def ConvMixer(dim, depth, kernel_size=5, patch_size=2, n_classes=10, activation='GeLU'):
+def ConvMixer(dim, depth, kernel_size=5, patch_size=2, n_classes=10, activation='GELU'):
     
     #Det activation func
     if activation == 'GELU':
