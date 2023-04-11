@@ -48,8 +48,8 @@ def mixup(data, targets, alpha, n_classes):
 
     lam = torch.FloatTensor([np.random.beta(alpha, alpha)])
     data = data * lam + data2 * (1 - lam)
-    targets = targets * lam + targets2 * (1 - lam)
-
+    # targets = targets * lam + targets2 * (1 - lam)
+    targets = (targets, targets2, lam)
     return data, targets
 
 class CustomCollator:
