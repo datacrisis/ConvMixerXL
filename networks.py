@@ -22,7 +22,7 @@ def ConvMixer(dim, depth, kernel_size=5, patch_size=2, n_classes=10, activation=
         act_fx = nn.LeakyReLU()
 
     return nn.Sequential(
-        nn.Conv2d(3, dim, kernel_size=9, stride=1),
+        nn.Conv2d(3, dim, kernel_size=patch_size, stride=patch_size),
         act_fx,
         nn.BatchNorm2d(dim),
         *[nn.Sequential(
