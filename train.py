@@ -39,9 +39,9 @@ parser.add_argument('--ra-n', default=2, type=int)
 parser.add_argument('--jitter', default=0.2, type=float)
 parser.add_argument('--no_aug',action='store_true',help="Enable flag to remove augmentations")
 
-parser.add_argument('--cutmix',action='store_true',help="Enable CutMix regularizer")
+parser.add_argument('--use_cutmix',action='store_true',help="Enable CutMix regularizer")
 parser.add_argument('--cutmix_alpha', type=float, default=1.0)
-parser.add_argument('--mixup',action='store_true',help="Enable MixUp regularizer")
+parser.add_argument('--use_mixup',action='store_true',help="Enable MixUp regularizer")
 parser.add_argument('--mixup_alpha', type=float, default=1.0)
 
 parser.add_argument('--hdim', default=256, type=int)
