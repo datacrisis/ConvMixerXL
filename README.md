@@ -28,21 +28,21 @@ This project is built based on [[1]](https://github.com/locuslab/convmixer-cifar
 ```
 
 [3]
-'''
+```
 @misc{github, 
   author={hysts}, 
   title={pytorch_cutmix}, 
   year={2019}, 
   url={https://github.com/hysts/pytorch_cutmix}, 
 }
-'''
+```
 
 [4]
-'''
+```
 @misc{github, 
   author={hysts}, 
   title={pytorch_mixup}, 
   year={2018}, 
   url={https://github.com/hysts/pytorch_mixup}, 
 }
-'''
+```
