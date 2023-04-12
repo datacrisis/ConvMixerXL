@@ -103,7 +103,7 @@ testvalset = torchvision.datasets.CIFAR10(root='./data', train=False,
 
 
 if args.use_cutmix:
-    collator = CustomCollator(args.cutmix_alpha, args.mixup_alpha, 10)
+    collator = CustomCollator(args.cutmix_alpha, args.mixup_alpha, 1,1)
 else:
     collator = torch.utils.data.dataloader.default_collate
 #Split test-val set
@@ -139,10 +139,11 @@ lr_schedule = lambda t: np.interp([t], [0, args.epochs*2//5, args.epochs*4//5, a
                                   [0, args.lr_max, args.lr_max/20.0, 0])[0]
 
 opt = optim.AdamW(model.parameters(), lr=args.lr_max, weight_decay=args.wd) #optimizer
-if args.use_cutmix:
-    train_criterion = CutMixCriterion(reduction='mean')
-else:
-    train_criterion = nn.CrossEntropyLoss(reduction='mean')
+# if args.use_cutmix:
+#     train_criterion = CutMixCriterion(reduction='mean')
+# else:
+#     train_criterion = nn.CrossEntropyLoss(reduction='mean')
+train_criterion = nn.CrossEntropyLoss(reduction='mean')
 test_criterion = nn.CrossEntropyLoss() #loss function
 scaler = torch.cuda.amp.GradScaler() #grad scaler
 
