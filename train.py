@@ -103,7 +103,7 @@ testvalset = torchvision.datasets.CIFAR10(root='./data', train=False,
 
 
 if args.use_cutmix:
-    collator = CustomCollator(args.cutmix_alpha, args.mixup_alpha, 1,1)
+    collator = CustomCollator(args.cutmix_alpha, args.mixup_alpha, 10)
 else:
     collator = torch.utils.data.dataloader.default_collate
 #Split test-val set
