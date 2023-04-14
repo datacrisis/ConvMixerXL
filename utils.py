@@ -29,8 +29,7 @@ def cutmix(batch, alpha):
     y1 = int(np.round(min(cy + h / 2, image_h)))
 
     data[:, :, y0:y1, x0:x1] = shuffled_data[:, :, y0:y1, x0:x1]
-    # targets = (targets, shuffled_targets, lam)
-    targets = targets * lam + shuffled_targets * (1 - lam)
+    targets = (targets, shuffled_targets, lam)
 
     return data, targets 
 
@@ -49,8 +48,7 @@ def mixup(data, targets, alpha, n_classes):
 
     lam = torch.FloatTensor([np.random.beta(alpha, alpha)])
     data = data * lam + data2 * (1 - lam)
-    targets = targets * lam + targets2 * (1 - lam)
-    # targets = (targets, targets2, lam)
+    targets = (targets, targets2, lam)
     return data, targets
 
 class CustomCollator:
@@ -76,7 +74,7 @@ class CutMixCriterion:
         targets1, targets2, lam = targets
         return lam * self.criterion(
             preds, targets1) + (1 - lam) * self.criterion(preds, targets2)
-
+            
 # deprecated
 # def cross_entropy_loss(input, target, size_average=True):
 #     input = F.log_softmax(input, dim=1)
