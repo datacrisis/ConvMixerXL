@@ -104,22 +104,20 @@ testvalset = torchvision.datasets.CIFAR10(root='./data', train=False,
 
 if args.use_cutmix:
     collator = CustomCollator(args.cutmix_alpha, args.mixup_alpha, 10)
-    trainloader = torch.utils.data.DataLoader(trainset, 
-                                        batch_size=args.batch_size,
-                                        shuffle=True,
-                                        num_workers=args.workers,
-                                        collate_fn=collator)
 else:
-    trainloader = torch.utils.data.DataLoader(trainset, 
-                                        batch_size=args.batch_size,
-                                        shuffle=True,
-                                        num_workers=args.workers)
-            
+    collator = torch.utils.data.dataloader.default_collate
+
+
 #Split test-val set
 ln = len(testvalset)
 valset,testset = torch.utils.data.random_split(testvalset,[ln//2,ln//2])
 
 #Dataloaders
+trainloader = torch.utils.data.DataLoader(trainset, 
+                                        batch_size=args.batch_size,
+                                        shuffle=True,
+                                        num_workers=args.workers,
+                                        collate_fn=collator)
 valloader = torch.utils.data.DataLoader(valset,
                                         batch_size=args.batch_size,
                                         shuffle=False,
@@ -144,10 +142,13 @@ lr_schedule = lambda t: np.interp([t], [0, args.epochs*2//5, args.epochs*4//5, a
                                   [0, args.lr_max, args.lr_max/20.0, 0])[0]
 
 opt = optim.AdamW(model.parameters(), lr=args.lr_max, weight_decay=args.wd) #optimizer
-if args.use_cutmix:
-    train_criterion = CutMixCriterion(reduction='mean')
-else:
-    train_criterion = nn.CrossEntropyLoss(reduction='mean')
+
+# if args.use_cutmix:
+#     train_criterion = CutMixCriterion(reduction='mean')
+# else:
+#     train_criterion = nn.CrossEntropyLoss(reduction='mean')
+train_criterion = nn.CrossEntropyLoss(reduction='mean')
+
 test_criterion = nn.CrossEntropyLoss() #loss function
 scaler = torch.cuda.amp.GradScaler() #grad scaler
 

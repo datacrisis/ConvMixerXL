@@ -48,7 +48,6 @@ def mixup(data, targets, alpha, n_classes):
 
     lam = torch.FloatTensor([np.random.beta(alpha, alpha)])
     data = data * lam + data2 * (1 - lam)
-    # targets = targets * lam + targets2 * (1 - lam)
     targets = (targets, targets2, lam)
     return data, targets
 
@@ -61,10 +60,10 @@ class CustomCollator:
     def __call__(self, batch):
         batch = torch.utils.data.dataloader.default_collate(batch)
         if np.random.uniform() < 0.5:
-            data, targets = cutmix(batch, self.cutmix_alpha)
+            batch = cutmix(batch, self.cutmix_alpha)
         else:
-            data, targets = mixup(*batch, self.mixup_alpha, self.num_classes)
-        return data, targets 
+            batch = mixup(*batch, self.mixup_alpha, self.num_classes)
+        return batch
 
 
 class CutMixCriterion:
@@ -75,3 +74,20 @@ class CutMixCriterion:
         targets1, targets2, lam = targets
         return lam * self.criterion(
             preds, targets1) + (1 - lam) * self.criterion(preds, targets2)
+            
+# deprecated
+# def cross_entropy_loss(input, target, size_average=True):
+#     input = F.log_softmax(input, dim=1)
+#     loss = -torch.sum(input * target)
+#     if size_average:
+#         return loss / input.size(0)
+#     else:
+#         return loss
+
+
+# class CrossEntropyLoss(object):
+#     def __init__(self, size_average=True):
+#         self.size_average = size_average
+
+#     def __call__(self, input, target):
+#         return cross_entropy_loss(input, target, self.size_average)
