@@ -30,30 +30,30 @@ parser.add_argument('--model', default='CM', choices=['CM','CM-XL'])
 parser.add_argument('--skip_period', default=3, 
                     help='Denominator in extra skip connection periodicity computation; only used in ConvMixer-XL',
                     type=int)
-parser.add_argument('--activation', default='GELU', choices=['GELU','ReLU','SiLU'])
-parser.add_argument('--batch-size', default=64, type=int)
-parser.add_argument('--scale', default=0.75, type=float)
-parser.add_argument('--reprob', default=0.2, type=float)
-parser.add_argument('--ra-m', default=12, type=int)
-parser.add_argument('--ra-n', default=2, type=int)
-parser.add_argument('--jitter', default=0.2, type=float)
+parser.add_argument('--activation', default='GELU', choices=['GELU','ReLU','SiLU'], help='Activation function')
+parser.add_argument('--batch-size', default=64, type=int, help='Batch size')
+parser.add_argument('--scale', default=0.75, type=float, help='Scale factor resizing images')
+parser.add_argument('--reprob', default=0.2, type=float, help='Random erase probability')
+parser.add_argument('--ra-m', default=12, type=int, help='Magnitude of random augmentation'')
+parser.add_argument('--ra-n', default=2, type=int, help='Number of random augmentations')
+parser.add_argument('--jitter', default=0.2, type=float, help='Jittering factor')
 parser.add_argument('--no_aug',action='store_true',help="Enable flag to remove augmentations")
 
 parser.add_argument('--use_cutmix',action='store_true',help="Enable CutMix regularizer")
-parser.add_argument('--cutmix_alpha', type=float, default=1.0)
+parser.add_argument('--cutmix_alpha', type=float, default=1.0, help="CutMix alpha parameter")
 parser.add_argument('--use_mixup',action='store_true',help="Enable MixUp regularizer")
-parser.add_argument('--mixup_alpha', type=float, default=1.0)
+parser.add_argument('--mixup_alpha', type=float, default=1.0, help="MixUp alpha parameter")
 
-parser.add_argument('--hdim', default=256, type=int)
-parser.add_argument('--depth', default=8, type=int)
-parser.add_argument('--psize', default=2, type=int)
-parser.add_argument('--conv-ks', default=5, type=int)
+parser.add_argument('--hdim', default=256, type=int, help='Hidden dimension')
+parser.add_argument('--depth', default=8, type=int, help='Depth of network')
+parser.add_argument('--psize', default=2, type=int, help='Patch size')
+parser.add_argument('--conv-ks', default=5, type=int, help='Kernel size of convolutions')
 
-parser.add_argument('--wd', default=0.01, type=float)
-parser.add_argument('--clip-norm', action='store_true')
-parser.add_argument('--epochs', default=100, type=int)
-parser.add_argument('--lr-max', default=0.005, type=float)
-parser.add_argument('--workers', default=8, type=int)
+parser.add_argument('--wd', default=0.01, type=float, help='Weight decay')
+parser.add_argument('--clip-norm', action='store_true', help='Enable gradient clipping')
+parser.add_argument('--epochs', default=100, type=int, help='Number of epochs')
+parser.add_argument('--lr-max', default=0.005, type=float, help='Max learning rate')
+parser.add_argument('--workers', default=8, type=int, help='Number of workers for dataloader')
 
 parser.add_argument('--save_dir',default='./',help='Directory to save outputs to')
 
@@ -90,6 +90,7 @@ else:
     transforms.ToTensor(),
     transforms.Normalize(cifar10_mean, cifar10_std)])
 
+# No augmentations for test set
 test_transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(cifar10_mean, cifar10_std)
@@ -136,13 +137,17 @@ elif args.model == 'CM-XL':
     model = ConvMixerXL(args.hdim, args.depth, patch_size=args.psize, kernel_size=args.conv_ks, n_classes=10, skip_period=args.skip_period, 
 activation=args.activation)
 
+# load to GPU for faster speed
 model = nn.DataParallel(model).cuda()
 
+# triangular learning rate scheduler, increases then decreases
 lr_schedule = lambda t: np.interp([t], [0, args.epochs*2//5, args.epochs*4//5, args.epochs], 
                                   [0, args.lr_max, args.lr_max/20.0, 0])[0]
 
+# AdamW optimizer for isotropic architecture 
 opt = optim.AdamW(model.parameters(), lr=args.lr_max, weight_decay=args.wd) #optimizer
 
+# disabled cutmix and mixup for implmentation issues
 # if args.use_cutmix:
 #     train_criterion = CutMixCriterion(reduction='mean')
 # else:
@@ -253,7 +258,7 @@ with torch.no_grad(): #no grad needed
     test_loss_ls = [{'Value':round(test_loss/m,5)}]
     test_acc_ls = [{'Value':round(test_acc/m,5)}]
     
-
+# log to terminal
 print(f'[{args.name}-{args.model}] | Test Acc: {test_acc/m:.4f}, Time: {time.time() - start:.1f}')
 
 
