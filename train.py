@@ -34,7 +34,7 @@ parser.add_argument('--activation', default='GELU', choices=['GELU','ReLU','SiLU
 parser.add_argument('--batch-size', default=64, type=int, help='Batch size')
 parser.add_argument('--scale', default=0.75, type=float, help='Scale factor resizing images')
 parser.add_argument('--reprob', default=0.2, type=float, help='Random erase probability')
-parser.add_argument('--ra-m', default=12, type=int, help='Magnitude of random augmentation'')
+parser.add_argument('--ra-m', default=12, type=int, help='Magnitude of random augmentation')
 parser.add_argument('--ra-n', default=2, type=int, help='Number of random augmentations')
 parser.add_argument('--jitter', default=0.2, type=float, help='Jittering factor')
 parser.add_argument('--no_aug',action='store_true',help="Enable flag to remove augmentations")
