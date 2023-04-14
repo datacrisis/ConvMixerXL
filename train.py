@@ -170,14 +170,8 @@ for epoch in range(args.epochs):
     train_loss, train_acc, n = 0, 0, 0
 
     #Go through training steps
-    for i, (X, y) in enumerate(trainloader):
-        
-        print(type(X),print(type(y)))
-        print(X)
-        print(y)
-        print(X.shape,y.shape)
-        
-        
+    for i, (X, y) in enumerate(trainloader):  
+       
         #Set train mode and port sample to cuda
         model.train()
         X, y = X.cuda(), y.cuda()
