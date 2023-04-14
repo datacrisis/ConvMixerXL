@@ -1,7 +1,7 @@
 <br />
 <p align="center">
 
-  <h1 align="center">Augmentations and Activations: Pushing The Performance Of Isotropic ConvNets</h1>
+  <h1 align="center">Activations And Augmentations: Pushing The Performance Of Isotropic ConvNets</h1>
   <h4 align="center"><a href="https://github.com/datacrisis">Keifer Lee</a>, <a href="https://github.com/iamshubhamgupto">Shubham Gupta</a>, <a href="">Karan Sharma</a></h4>
   
 </p>
