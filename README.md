@@ -4,9 +4,11 @@
   <h1 align="center">Activations And Augmentations: Pushing The Performance Of Isotropic ConvNets</h1>
   <h4 align="center"><a href="https://github.com/datacrisis">Keifer Lee</a>, <a href="https://github.com/iamshubhamgupto">Shubham Gupta</a>, <a href="">Karan Sharma</a></h4>
   
+  <h5 align="center"><a href="https://colab.research.google.com/drive/13harjTZPcYIJJ5UQgUSMK6m8QpLQ7Rcj?usp=sharing">Colab Demo</a> &emsp; <a href="https://iamshubhamgupto.github.io/ConvMixerXL/assets/pdf/ConvMixerXL.pdf"> Report </a></h5>
 </p>
 
-[Colab Demo](https://colab.research.google.com/drive/13harjTZPcYIJJ5UQgUSMK6m8QpLQ7Rcj?usp=sharing)
+
+<!-- [Colab Demo](https://colab.research.google.com/drive/13harjTZPcYIJJ5UQgUSMK6m8QpLQ7Rcj?usp=sharing) &emsp; [Report](@username.github.io/ConvMixerXL/assets/pdf/ConvMixerXL.pdf) -->
 
 # Abstract
 
